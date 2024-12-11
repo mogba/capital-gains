@@ -118,17 +118,21 @@ For the input, make sure it has a valid JSON format. An error message will be pr
 You can pass the input in the following formats:
 
 - An array by line (without commas):
-  ```
+  ```json
   [{ "operation": "buy", "unit-cost": 10, "quantity": 100 }]
   [{ "operation": "buy", "unit-cost":10, "quantity": 100}, { "operation": "sell", "unit-cost": 15, "quantity": 50 }]
   ```
 - An array of arrays:
-  ```
+  ````json
   [
     [{ "operation": "buy", "unit-cost": 10, "quantity": 100 }],
-    [{ "operation": "buy", "unit-cost":10, "quantity": 100}, { "operation": "sell", "unit-cost": 15, "quantity": 50 }]
+    [
+      { "operation": "buy", "unit-cost": 10, "quantity": 100 },
+      { "operation": "sell", "unit-cost": 15, "quantity": 50 }
+    ]
   ]
-  ```
+  ```json
+  ````
 - A single object:
   ```
   { "operation": "buy", "unit-cost": 10, "quantity": 100 }
@@ -136,11 +140,8 @@ You can pass the input in the following formats:
 
 The result will be always printed using the same format:
 
-```
-[
-  [ { tax: 0 } ],
-  [ { tax: 0 }, { tax: 0 } ]
-]
+```json
+[[{ "tax": 0 }], [{ "tax": 0 }, { "tax": 0 }]]
 ```
 
 ### Executing tests
