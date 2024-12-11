@@ -2,15 +2,13 @@
 
 This is a project developed to assert my problem solving and logical reasoning skills.
 
-### About me
+### About the engineer
 
-I'm Gabriel, a software engineer who likes to understand how technologies work under the hood.
+I'm a software engineer who likes to understand how technologies work under the hood.
 
 As a previous job interviewer and as an interviewee in IT, I know for a fact that organization and proactivity are great qualities to have and strive for, both in interview processes and in a day-to-day basis. I believe that strong knowledge of programming fundamentals and hard work are two of the most important pieces to craft amazing things.
 
 When we care for our craft, we feel good and motivated to innovate as a professional and as a person, which acts in benefit for us and ours peers as engineers and the software we're building together as a community.
-
-Please, feel free to reach me out on <a href="https://www.linkedin.com/in/moraisgabrieeel/">![Static Badge](https://img.shields.io/badge/LinkedIn-3469BE?style=flat-square)</a> or <a href="https://github.com/mogba/">![Static Badge](https://img.shields.io/badge/GitHub-000000?style=flat-square)</a>.
 
 ## Train of tought
 
