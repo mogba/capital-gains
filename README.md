@@ -10,7 +10,7 @@ As a previous job interviewer and as an interviewee in IT, I know for a fact tha
 
 When we care for our craft, we feel good and motivated to innovate as a professional and as a person, which acts in benefit for us and ours peers as engineers and the software we're building together as a community.
 
-## Train of tought
+## Train of thought
 
 When first starting the project, I listed all business rules in order to create small and predictable tasks, which greatly facilitated the development by making the requirements explicit and helped to keep concepts organized, enabling frequent and manageable commits with continuous delivery, besides isolating requirements physically in the codebase.
 
