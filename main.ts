@@ -1,18 +1,14 @@
-// const input = [
-//   [
-//     { operation: "buy" as OperationType, unitCost: 10.0, quantity: 100 },
-//     { operation: "sell" as OperationType, unitCost: 15.0, quantity: 50 },
-//     { operation: "sell" as OperationType, unitCost: 15.0, quantity: 50 },
-//   ],
-//   [
-//     { operation: "buy" as OperationType, unitCost: 10.0, quantity: 1000 },
-//     { operation: "buy" as OperationType, unitCost: 20.0, quantity: 5000 },
-//     { operation: "buy" as OperationType, unitCost: 5.0, quantity: 5000 },
-//   ],
-// ];
+#!/usr/bin/env -S deno run --allow-read
 
-// const result = await calculateCapitalGains(input);
+import {
+  calculateCapitalGains,
+  readJsonInput,
+  type Operation,
+} from "./lib/index.ts";
 
-// result.forEach((taxes) => console.log(taxes));
+const input = await readJsonInput<Operation[]>();
+const result = await calculateCapitalGains(input);
+
+console.log(result);
 
 Deno.exit(0);
