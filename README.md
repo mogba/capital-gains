@@ -1,32 +1,35 @@
-Considerações:
+# Capital Gains
 
-- Cada linha é um conjunto de operações de compra ou venda ocorridas em sequência.
-- Cada linha deve ter um resultado independente. O estado deve ser guardado apenas entre operações de mesma linha,
-- Nenhuma operação vai vender mais ações do que você tem naquele momento. Por exemplo, a primeira operação será sempre de compra.
-- Em operações de compra de ações, deve-se recalcular o preço médio ponderado utilizando essa fórmula:
-- nova-média-ponderada = ((quantidade-de-ações-atual _ média-ponderada-atual) + (quantidade-de-ações-compradas _ valor-de-compra)) / (quantidade-de-ações-atual + quantidade-de-ações-compradas)
-- Por exemplo, se você comprou 10 ações por R$ 20,00, vendeu 5, depois comprou outras 5 por R$ 10,00, a média ponderada é ((5 x 20.00) + (5 x 10.00)) / (5 + 5) = 15.00.
-- Entrada:
-  [{ "operation": "buy", "unit-cost": 10.00, "quantity": 10000 }, { "operation": "sell", "unit-cost": 20.00, "quantity": 5000 }],
-  [{ "operation": "buy", "unit-cost": 20.00, "quantity": 10000 }, { "operation": "sell", "unit-cost": 10.00, "quantity": 5000 }]
-- Retorno:
-  [{ "tax": 0.00 }, { "tax": 10000.00 }],
-  [{ "tax": 0.00 }, { "tax": 0.00 }]
+This is a project developed to assert my problem solving and logical reasoning skills.
 
-Exercício:
+As a previous job interviewer in IT and as an interviewee, I know for a fact that organization and proactivity are great qualities to have, both in interview processes and in a day-to-day basis. When we care for what we create, we feel good and motivated to work and create even greater things, which acts in benefit for the engineer and their peers and the software we're building together as a community.
 
-1. Calcular preço médio ponderado.
-2. Verificar se operação resultou em prejuízo ou lucro:
+## Train of tought
 
-- Se o valor total da operação (custo unitário da ação x quantidade) for menor que o preço médio ponderado de compra, então houve prejuízo.
-- Se o valor total da operação (custo unitário da ação x quantidade) for maior que o preço médio ponderado de compra, então houve lucro.
+When first starting the project, I listed all business rules in order to create small and predictable tasks, which greatly facilitated the development by making the requirements explicit and helped to keep concepts organized, enabling frequent and manageable commits with continuous delivery, besides isolating requirements physically in the codebase.
 
-3. Verificar se paga imposto:
+These were the considerations:
 
-- Se for operação de compra, não paga imposto.
-- Se for operação de venda com valor total da operação (custo unitário da ação x quantidade) for menor que R$ 20000,00, não paga imposto.
-- Se houve prejuízo, não paga imposto.
-- Se houve lucro, paga imposto de 20% sobre o lucro.
+- Each line is a group of buy or sell operations, which occurred in the sequence they're provided.
+- Each line must have an independent result. The state should not be kept between operation lines, only within the operation itself.
+- No operation will sell more shares that there are available. For instance, the first operation will always be a buy operation.
+
+And these were the small, manageable tasks which needed to be completed in order to correctly calculate taxes:
+
+1. When processing a buy operation, the weighted mean price should be calculated and stored to be used by subsequent operations.
+2. When processing a buy operation, there are not taxes.
+3. When processing a sell operation, the tax incidence will depend on a series of criteria.
+4. When the total operation value (unit cost X quantity) is lower than the cut for tax incidence, there are no taxes.
+5. When the unit cost is lower than the weighted mean price, there is loss, in which there are not taxes.
+6. Losses should be deduced from subsequent gains, thus losses should be stored as total loss.
+7. When the unit cost is higher than the weighted mean price, there is gain.
+8. After deducing total loss from gains, if total loss is higher than gains, then gains will be zeroed, in which case there are no taxes.
+9. After deducing total loss from gains, if total loss is zeroed and gains are still positive, then there are taxes.
+10. Taxes should incide on gains that are still positive after deducing losses for operations which total value is equal to or higher than the cut for tax incidence.
+
+### Glossary
+
+#### Input
 
 | Name      | Meaning                                                 |
 | --------- | ------------------------------------------------------- |
@@ -34,7 +37,7 @@ Exercício:
 | unit-cost | Unit price of the stock in a currency with two decimals |
 | quantity  | Number of stocks traded                                 |
 
-Example input:
+Example:
 
 ```json
 [
@@ -47,11 +50,13 @@ Example input:
 ]
 ```
 
+#### Output
+
 | Name | Meaning                                |
 | ---- | -------------------------------------- |
 | tax  | The amount of tax paid in an operation |
 
-Example output:
+Example:
 
 ```json
 [
@@ -64,13 +69,13 @@ Example output:
 ]
 ```
 
-## Decision making
-
 ### Simplicity-driven design
 
-I took a "solve the problem first, build up when necessary" approach, by sticking to solving the proposed problem in a way that prioritizes modularity and reasonable organization in the folder structure, while avoiding unnecessary abstractions or boilerplate and still making good use of the Open-Closed Principle.
+My approach to projects like this is usually to first solve the problem and then build uppon the initial features and structure when necessary.
 
-While ... talk about, when possible, preferring implementing algorithms manually instead of importing external dependencies.
+The project was set up prioritizing modularity in an organized folder structure, while avoiding unnecessary abstractions or boilerplate and still making good use of the Open-Closed Principle.
+
+While I do like to keep things simple, I usually prefer not to install dependencies if the problem I need to solve is simple enough to be implemented by my own and/or there are snippets available online. Things like calculations, data processing algorithms, such mapping or transforming of data, I usually prefer to do it and make this part of the code my own responsibility. The main reasons are that: 1. I love to code algorithms and see what I'm developing grow up and take form; and 2. I cannot garantee the quality of a third-party dependency, but I can garantee the quality of the code I orchestrated.
 
 ### Deno
 
@@ -80,17 +85,21 @@ Furthermore, the standard library is very powerfull, providing built-in support 
 
 Last, but not least, Deno enables the development, deployment and project management chores to be straightforward and one of the main reasons is that it removes head-aches like dependency management or manual version conflict resolution mess as seen in more generally used runtimes.
 
-### Additional code
+### Additional efforts
+
+Some additional utility functions were created to help keep good standards in the project. The word case parser was created to avoid having to directly reference kebab case within a camel case codebase. There is also a utility routine to read the input in a standard way, which can be used anywhere in the app.
 
 ## Project setup
 
 ### Building
 
+<!-- TODO -->
+
 ### Executing
 
 To facilitate the execution of the project, the `main.ts` file was made into an executable.
 
-To turn the file into an executable, the following line was added as the first line:
+To turn the file into an executable, the following instruction was added as the first line:
 
 `#!/usr/bin/env -S deno run --allow-read`
 
@@ -136,7 +145,14 @@ The result will be always printed using the same format:
 
 ### Executing tests
 
-Sua solução deve conter um arquivo de README com:
-● Instruções sobre como compilar e executar o projeto;
-● Instruções sobre como executar os testes da solução;
-● Notas adicionais que você considere importantes para a avaliação.
+To execute tests, run the command:
+
+```
+deno task test
+```
+
+There are unit tests for the main calculation routine and integration tests to make sure the project is working when calling it throught the terminal.
+
+The unit tests were created based on the provided assertion cases from the documentation and it should cover important use cases for gains, losses and taxes calculation.
+
+The integration tests check the behavior of the project's extreme edge cases, an area that is more technical in comparison to what the standard unit tests cover. In order to run, the integration tests require additional permissions, such as `--allow-read` and `--allow-run`, which are already configured in the 'test' task mentioned above.
