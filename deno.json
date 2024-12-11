@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "dev": "deno run --allow-env --watch main.ts",
+    "run": "deno --allow-env ./main.ts",
     "test": "deno test --allow-read --allow-run --allow-env",
     "compile": "deno compile --allow-net --output capital-gains main.ts"
   },
