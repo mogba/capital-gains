@@ -1,4 +1,4 @@
-import { STDIN_BUFFER_LENGTH } from "./constants.ts";
+import { kebabToCamel, STDIN_BUFFER_LENGTH } from "./index.ts";
 
 export async function readInput(): Promise<string[]> {
   const decoder = new TextDecoder();
@@ -24,4 +24,21 @@ export async function readInput(): Promise<string[]> {
   }
 
   return lines;
+}
+
+export async function readJsonInput<T>(): Promise<T[]> {
+  const lines = await readInput();
+  const output: T[] = [];
+
+  for (const line of lines) {
+    try {
+      const parsed = JSON.parse(kebabToCamel(line)) as T;
+      output.push(parsed);
+    } catch (_) {
+      console.error("Invalid JSON input:", line);
+      Deno.exit(0);
+    }
+  }
+
+  return output;
 }
