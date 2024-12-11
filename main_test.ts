@@ -1,6 +1,6 @@
 import { assertEquals } from "@std/assert";
 
-import { CUT_FOR_TAX_INCIDENCE, PROFIT_TAX_PERCENTAGE } from "./constants.ts";
+import { CUT_FOR_TAX_INCIDENCE, GAIN_TAX_PERCENTAGE } from "./constants.ts";
 import { calculateCapitalGains } from "./main.ts";
 import type { OperationType } from "./types.ts";
 
@@ -43,7 +43,7 @@ Deno.test(
 
 // Case #2
 Deno.test(
-  `[calculate capital gains] it should incide tax of ${PROFIT_TAX_PERCENTAGE}% on gains of sell operations`,
+  `[calculate capital gains] it should incide tax of ${GAIN_TAX_PERCENTAGE}% on gains of sell operations`,
   async () => {
     const input = [
       [
@@ -113,7 +113,7 @@ Deno.test(
 
 // Case #3
 Deno.test(
-  `[calculate capital gains] it should deduce loss from gains and incide tax of ${PROFIT_TAX_PERCENTAGE}% from ramainder gains`,
+  `[calculate capital gains] it should deduce loss from gains and incide tax of ${GAIN_TAX_PERCENTAGE}% from ramainder gains`,
   async () => {
     const input = [
       [

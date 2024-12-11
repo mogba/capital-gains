@@ -1,3 +1,3 @@
 export const CUT_FOR_TAX_INCIDENCE = 20_000;
-export const PROFIT_TAX_PERCENTAGE_DECIMALS = 0.2;
-export const PROFIT_TAX_PERCENTAGE = 0.2 * 100;
+export const GAIN_TAX_PERCENTAGE_DECIMAL = 0.2;
+export const GAIN_TAX_PERCENTAGE = 0.2 * 100;

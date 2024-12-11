@@ -1,6 +1,6 @@
 import {
   CUT_FOR_TAX_INCIDENCE,
-  PROFIT_TAX_PERCENTAGE_DECIMALS,
+  GAIN_TAX_PERCENTAGE_DECIMAL,
 } from "./constants.ts";
 import type { Operation, OperationType, Tax } from "./types.ts";
 
@@ -18,14 +18,13 @@ function calculateWeightedMeanPrice(
     (currentState.shareCount + operation.quantity);
 
   return result;
-  // return roundToTwoDecimals(result);
 }
 
 export async function calculateCapitalGains(
   operations: Operation[]
 ): Promise<Tax[]> {
   let shareCount = 0;
-  let balance = 0;
+  let totalLoss = 0;
   let weightedMeanPrice = 0;
 
   const taxes: Tax[] = [];
@@ -41,9 +40,7 @@ export async function calculateCapitalGains(
       );
 
       shareCount += operation.quantity;
-      // Consider the remaining balance is used to buy new shares,
-      // thus the current balance resets
-      balance = 0;
+      totalLoss = 0;
 
       taxes.push({ tax: 0 });
       continue;
@@ -55,41 +52,35 @@ export async function calculateCapitalGains(
       if (operation.unitCost < weightedMeanPrice) {
         // Loss
 
-        // Store loss value to deduce in future profits
-        const loss =
-          weightedMeanPrice * operation.quantity -
-          operation.unitCost * operation.quantity;
-
-        balance -= loss;
+        const loss = calculateLoss(weightedMeanPrice, operation);
+        totalLoss -= loss;
 
         taxes.push({ tax: 0 });
         continue;
       }
 
-      // Profit
+      // Gain
 
-      const profit =
-        operation.unitCost * operation.quantity -
-        weightedMeanPrice * operation.quantity;
-      const actualProfit = balance + profit;
+      const gain = calculateGain(operation, weightedMeanPrice);
+      const lossDeducedGain = totalLoss + gain;
 
-      balance += profit;
+      totalLoss += gain;
 
       const isTotalOperationValueLessThanCutForTaxIncidence =
         operation.unitCost * operation.quantity < CUT_FOR_TAX_INCIDENCE;
-      const isLossDeducedProfitZero = actualProfit < 0;
+      const isLossDeducedGainZero = lossDeducedGain < 0;
 
       if (
         isTotalOperationValueLessThanCutForTaxIncidence ||
-        isLossDeducedProfitZero
+        isLossDeducedGainZero
       ) {
         taxes.push({ tax: 0 });
         continue;
       }
 
-      // Round decimals only at the end
+      // Only round decimals at the end
       const tax = roundToTwoDecimals(
-        actualProfit * PROFIT_TAX_PERCENTAGE_DECIMALS
+        lossDeducedGain * GAIN_TAX_PERCENTAGE_DECIMAL
       );
 
       taxes.push({ tax });
@@ -120,3 +111,17 @@ const result = await Promise.all(
 );
 
 result.forEach((taxes) => console.log(taxes));
+
+function calculateGain(operation: Operation, weightedMeanPrice: number) {
+  return (
+    operation.unitCost * operation.quantity -
+    weightedMeanPrice * operation.quantity
+  );
+}
+
+function calculateLoss(weightedMeanPrice: number, operation: Operation) {
+  return (
+    weightedMeanPrice * operation.quantity -
+    operation.unitCost * operation.quantity
+  );
+}
