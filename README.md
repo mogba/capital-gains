@@ -185,6 +185,12 @@ Finally, to run the project, run the following command:
 echo "<input>" | ./main.ts
 ```
 
+You can also provide a simple txt file as input via Input Redirection:
+
+```shell
+deno task run < input.txt
+```
+
 For the input, make sure it has a valid JSON format. An error message will be printed if the format is invalid.
 
 You can pass the input in the following formats:
