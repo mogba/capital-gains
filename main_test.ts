@@ -2,10 +2,7 @@ import { assertEquals } from "@std/assert";
 
 import type { OperationType } from "./types.ts";
 import { calculateCapitalGains } from "./main.ts";
-import {
-  MAX_SELL_REVENUE_FOR_NO_TAX,
-  PROFIT_TAX_PERCENTAGE,
-} from "./constants.ts";
+import { CUT_FOR_TAX_INCIDENCE, PROFIT_TAX_PERCENTAGE } from "./constants.ts";
 
 Deno.test("calculate capital gains", async (t) => {
   // Case #1
@@ -24,7 +21,7 @@ Deno.test("calculate capital gains", async (t) => {
 
   // Case #1
   await t.step(
-    `it should output no tax for sell operations of less than ${MAX_SELL_REVENUE_FOR_NO_TAX}`,
+    `it should output no tax for sell operations of less than ${CUT_FOR_TAX_INCIDENCE}`,
     async () => {
       const input = [
         [
@@ -249,7 +246,7 @@ Deno.test("calculate capital gains", async (t) => {
           quantity: 1_000,
         },
         {
-          operation: "sell" as OperationType,
+          operation: "buy" as OperationType,
           unitCost: 20,
           quantity: 10_000,
         },
@@ -305,7 +302,7 @@ Deno.test("calculate capital gains", async (t) => {
         {
           operation: "sell" as OperationType,
           unitCost: 50,
-          quantity: 2_000,
+          quantity: 10_000,
         },
       ],
     ];

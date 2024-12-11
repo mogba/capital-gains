@@ -1,3 +1,3 @@
-export const MAX_SELL_REVENUE_FOR_NO_TAX = 20_000;
+export const CUT_FOR_TAX_INCIDENCE = 20_000;
 export const PROFIT_TAX_PERCENTAGE_DECIMALS = 0.2;
 export const PROFIT_TAX_PERCENTAGE = 0.2 * 100;
