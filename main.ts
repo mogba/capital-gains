@@ -9,6 +9,6 @@ import {
 const input = await readJsonInput<Operation[]>();
 const result = await calculateCapitalGains(input);
 
-console.log(result);
+result.forEach((line) => console.log(JSON.stringify(line)));
 
 Deno.exit(0);

@@ -218,7 +218,8 @@ You can pass the input in the following formats:
 The result will be always printed using the same format:
 
 ```json
-[[{ "tax": 0 }], [{ "tax": 0 }, { "tax": 0 }]]
+[{"tax":0}]
+[{"tax":0},{"tax":0}]
 ```
 
 ### Executing tests
