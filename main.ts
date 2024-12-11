@@ -4,16 +4,6 @@ import {
 } from "./constants.ts";
 import type { Operation, OperationType, Tax } from "./types.ts";
 
-/**
- * nova-média-ponderada = ((quantidade-de-ações-atual * média-ponderada-atual) + (quantidade-de-ações-compradas * valor-de-compra)) / (quantidade-de-ações-atual + quantidade-de-ações-compradas)
- *
- * nova-média-ponderada = ((0 * 0) + (10 * 20.00)) / (0 + 10)
- * nova-média-ponderada = 20.0000
- *
- * nova-média-ponderada = ((10 * 20.00) + (10000 * 10.00)) / (10 + 10000)
- * nova-média-ponderada = 10.0099
- */
-
 function roundToTwoDecimals(value: number) {
   return Math.round(value * 100) / 100;
 }
@@ -55,12 +45,6 @@ export async function calculateCapitalGains(
       // thus the current balance resets
       balance = 0;
 
-      console.log(`[${JSON.stringify(operation)}]`, {
-        weightedMeanPrice,
-        shareCount,
-        balance,
-      });
-
       taxes.push({ tax: 0 });
       continue;
     }
@@ -77,12 +61,6 @@ export async function calculateCapitalGains(
           operation.unitCost * operation.quantity;
 
         balance -= loss;
-
-        console.log(`[${JSON.stringify(operation)}]`, {
-          weightedMeanPrice,
-          shareCount,
-          balance,
-        });
 
         taxes.push({ tax: 0 });
         continue;
@@ -113,13 +91,6 @@ export async function calculateCapitalGains(
       const tax = roundToTwoDecimals(
         actualProfit * PROFIT_TAX_PERCENTAGE_DECIMALS
       );
-
-      console.log(`[${JSON.stringify(operation)}]`, {
-        weightedMeanPrice,
-        shareCount,
-        balance,
-        tax,
-      });
 
       taxes.push({ tax });
       continue;
