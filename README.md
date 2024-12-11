@@ -2,7 +2,15 @@
 
 This is a project developed to assert my problem solving and logical reasoning skills.
 
-As a previous job interviewer in IT and as an interviewee, I know for a fact that organization and proactivity are great qualities to have, both in interview processes and in a day-to-day basis. When we care for what we create, we feel good and motivated to work and create even greater things, which acts in benefit for the engineer and their peers and the software we're building together as a community.
+### About me
+
+I'm Gabriel, a software engineer who likes to understand how technologies work under the hood.
+
+As a previous job interviewer and as an interviewee in IT, I know for a fact that organization and proactivity are great qualities to have and strive for, both in interview processes and in a day-to-day basis. I believe that strong knowledge of programming fundamentals and hard work are two of the most important pieces to craft amazing things.
+
+When we care for our craft, we feel good and motivated to innovate as a professional and as a person, which acts in benefit for us and ours peers as engineers and the software we're building together as a community.
+
+Please, feel free to reach me out on <a href="https://www.linkedin.com/in/moraisgabrieeel/">![Static Badge](https://img.shields.io/badge/LinkedIn-3469BE?style=flat-square)</a> or <a href="https://github.com/mogba/">![Static Badge](https://img.shields.io/badge/GitHub-000000?style=flat-square)</a>.
 
 ## Train of tought
 
@@ -17,10 +25,10 @@ These were the considerations:
 And these were the small, manageable tasks which needed to be completed in order to correctly calculate taxes:
 
 1. When processing a buy operation, the weighted mean price should be calculated and stored to be used by subsequent operations.
-2. When processing a buy operation, there are not taxes.
+2. When processing a buy operation, there are no taxes.
 3. When processing a sell operation, the tax incidence will depend on a series of criteria.
 4. When the total operation value (unit cost X quantity) is lower than the cut for tax incidence, there are no taxes.
-5. When the unit cost is lower than the weighted mean price, there is loss, in which there are not taxes.
+5. When the unit cost is lower than the weighted mean price, there is loss, in which there are no taxes.
 6. Losses should be deduced from subsequent gains, thus losses should be stored as total loss.
 7. When the unit cost is higher than the weighted mean price, there is gain.
 8. After deducing total loss from gains, if total loss is higher than gains, then gains will be zeroed, in which case there are no taxes.
@@ -81,9 +89,9 @@ While I do like to keep things simple, I usually prefer not to install dependenc
 
 Deno is a batteries-included runtime and greatly facilitate the project bootstrap. It prioritizes security by default, as no file, network or environment access is allowed unless explicity granted via flags, such as `--allow-read` and `--allow-net`.
 
-Furthermore, the standard library is very powerfull, providing built-in support for TypeScript, bundling, testing, formatting and linting. In alternative runtimes, many other libraries are required to make everything work, adding up to the app configuration's complexity.
+Furthermore, the standard library is very powerfull, providing built-in support for TypeScript, bundling, testing, formatting and linting. In alternative runtimes, many other libraries are required to make everything work, adding up to the app's size and configuration's complexity.
 
-Last, but not least, Deno enables the development, deployment and project management chores to be straightforward and one of the main reasons is that it removes head-aches like dependency management or manual version conflict resolution mess as seen in more generally used runtimes.
+Last, but not least, Deno enables the development, deployment and project management chores to be straightforward. One of the main reasons for this is that it removes head-aches like dependency management or manual version conflict resolution mess as seen in more generally used runtimes.
 
 ### Additional efforts
 
@@ -93,7 +101,65 @@ Some additional utility functions were created to help keep good standards in th
 
 ### Building
 
-<!-- TODO -->
+You can run the app on the terminal by using a Deno task:
+
+```shell
+echo '
+[{"operation":"buy","unit-cost":10,"quantity":100}]
+[{"operation":"buy","unit-cost":10,"quantity":100},{"operation":"sell","unit-cost":15,"quantity":50}]
+' | deno task run
+```
+
+Or by building and running a Docker container with:
+
+```shell
+docker build -t capital-gains .
+docker run capital-gains '
+[{"operation":"buy","unit-cost":10,"quantity":100}]
+[{"operation":"buy","unit-cost":10,"quantity":100},{"operation":"sell","unit-cost":15,"quantity":50}]
+'
+```
+
+#### Installing Deno
+
+In order to run the project in the terminal without Docker, you need to install Deno.
+
+On a Unix-based OS using Shell:
+
+```shell
+curl -fsSL https://deno.land/install.sh | sh
+```
+
+On a Unix-based OS using [asdf](https://asdf-vm.com/):
+
+```shell
+asdf plugin-add deno https://github.com/asdf-community/asdf-deno.git
+
+# Download and install the latest version of Deno
+asdf install deno latest
+
+# To set as the default version of Deno globally
+asdf global deno latest
+
+# To set as the default version of Deno locally (current project only)
+asdf local deno latest
+```
+
+On MacOS using [Homebrew](https://formulae.brew.sh/formula/deno):
+
+```shell
+brew install deno
+```
+
+For more information, make sure to follow the steps on [Deno's documentation](https://docs.deno.com/runtime/getting_started/installation/).
+
+#### Installing Docker
+
+In order to run the project within a Docker container, you need to install Docker. This guide considers Docker Desktop as the default choice.
+
+On MacOS, go to the [Install Docker on MacOS](https://docs.docker.com/desktop/setup/install/mac-install/) page and download the dmg file according to your computer's architecture.
+
+To install Docker Desktop on other Unix-based OSs, follow the instructions on the [Install Docker on Linux](https://docs.docker.com/desktop/setup/install/linux/) page. The installation process may vary according to the OS distribution.
 
 ### Executing
 
@@ -101,17 +167,23 @@ To facilitate the execution of the project, the `main.ts` file was made into an 
 
 To turn the file into an executable, the following instruction was added as the first line:
 
-`#!/usr/bin/env -S deno run --allow-read`
+```ts
+#!/usr/bin/env -S deno run --allow-read
+```
 
 The second step was to set executable permission to the file using the following command:
 
-`chmod +x main.ts`
+```shell
+chmod +x main.ts
+```
 
-Both these steps were already accomplished and the file is ready to be executed.
+Both the steps were already completed and the file is ready to be executed.
 
 Finally, to run the project, run the following command:
 
-`echo "<input>" | ./main.ts`
+```shell
+echo "<input>" | ./main.ts
+```
 
 For the input, make sure it has a valid JSON format. An error message will be printed if the format is invalid.
 
@@ -123,7 +195,7 @@ You can pass the input in the following formats:
   [{ "operation": "buy", "unit-cost":10, "quantity": 100}, { "operation": "sell", "unit-cost": 15, "quantity": 50 }]
   ```
 - An array of arrays:
-  ````json
+  ```json
   [
     [{ "operation": "buy", "unit-cost": 10, "quantity": 100 }],
     [
@@ -131,10 +203,9 @@ You can pass the input in the following formats:
       { "operation": "sell", "unit-cost": 15, "quantity": 50 }
     ]
   ]
-  ```json
-  ````
-- A single object:
   ```
+- A single object:
+  ```json
   { "operation": "buy", "unit-cost": 10, "quantity": 100 }
   ```
 
@@ -148,7 +219,7 @@ The result will be always printed using the same format:
 
 To execute tests, run the command:
 
-```
+```shell
 deno task test
 ```
 
