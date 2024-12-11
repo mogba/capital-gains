@@ -38,7 +38,7 @@ function calculateGain(operation: Operation, weightedMeanPrice: number) {
 export async function calculateCapitalGains(
   operationsLines: Operation[][]
 ): Promise<Tax[][]> {
-  const promise = async (operations: Operation[]) => {
+  const promise = (operations: Operation[]) => {
     let shareCount = 0;
     let totalLoss = 0;
     let weightedMeanPrice = 0;
