@@ -1,6 +1,20 @@
-import { kebabToCamel, STDIN_BUFFER_LENGTH } from "./index.ts";
+import { isProduction, kebabToCamel, STDIN_BUFFER_LENGTH } from "./index.ts";
 
-export async function readInput(): Promise<string[]> {
+function mapNonEmptyTrimmedLines(input: string) {
+  return input
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function checkEmptyArgs(input: string[]) {
+  if (input.length === 0) {
+    console.error("No input provided in arguments.");
+    Deno.exit(0);
+  }
+}
+
+async function readInputFromStdin(): Promise<string[]> {
   const decoder = new TextDecoder();
   const buffer = new Uint8Array(STDIN_BUFFER_LENGTH);
   const lines: string[] = [];
@@ -15,19 +29,25 @@ export async function readInput(): Promise<string[]> {
 
     const input = decoder.decode(buffer.subarray(0, bytesRead));
 
-    lines.push(
-      ...input
-        .split("\n")
-        .map((line) => line.trim())
-        .filter(Boolean)
-    );
+    lines.push(...mapNonEmptyTrimmedLines(input));
   }
+
+  checkEmptyArgs(lines);
 
   return lines;
 }
 
+function readInputFromArgs(): string[] {
+  checkEmptyArgs(Deno.args);
+
+  return mapNonEmptyTrimmedLines(Deno.args[0]);
+}
+
 export async function readJsonInput<T>(): Promise<T[]> {
-  const lines = await readInput();
+  const lines = isProduction()
+    ? readInputFromArgs()
+    : await readInputFromStdin();
+
   const output: T[] = [];
 
   for (const line of lines) {
