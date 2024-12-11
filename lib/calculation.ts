@@ -1,8 +1,9 @@
 import {
   CUT_FOR_TAX_INCIDENCE,
   GAIN_TAX_PERCENTAGE_DECIMAL,
-} from "./constants.ts";
-import type { Operation, Tax } from "./calculation.types.ts";
+  type Operation,
+  type Tax,
+} from "./index.ts";
 
 function roundToTwoDecimals(value: number) {
   return Math.round(value * 100) / 100;

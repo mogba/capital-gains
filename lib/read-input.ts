@@ -32,8 +32,22 @@ export async function readJsonInput<T>(): Promise<T[]> {
 
   for (const line of lines) {
     try {
-      const parsed = JSON.parse(kebabToCamel(line)) as T;
-      output.push(parsed);
+      const parsed = JSON.parse(kebabToCamel(line)) as unknown;
+
+      // Input: { ... }
+      if (!Array.isArray(parsed)) {
+        output.push([parsed] as T);
+        continue;
+      }
+
+      // Input: [[{ ... }, { ... }],[{ ... }, { ... }]]
+      if (Array.isArray(Array.from(parsed)[0])) {
+        output.push(...(parsed as T[]));
+        continue;
+      }
+
+      // Input: [{ ... }, { ... }]
+      output.push(parsed as T);
     } catch (_) {
       console.error("Invalid JSON input:", line);
       Deno.exit(0);
