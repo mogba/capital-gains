@@ -8,15 +8,16 @@ import type { OperationType } from "./types.ts";
 Deno.test(
   `[calculate capital gains] it should incide no tax for buy operations`,
   async () => {
+    // Arrange
     const input = [
       [{ operation: "buy" as OperationType, unitCost: 10.0, quantity: 100 }],
     ];
     const expectedOutput = [[{ tax: 0 }]];
 
-    const output = await Promise.all(
-      input.map((operations) => calculateCapitalGains(operations))
-    );
+    // Act
+    const output = await calculateCapitalGains(input);
 
+    // Assert
     assertEquals(output, expectedOutput);
   }
 );
@@ -25,6 +26,7 @@ Deno.test(
 Deno.test(
   `[calculate capital gains] it should incide no tax for sell operations which total cost is lower than ${CUT_FOR_TAX_INCIDENCE}`,
   async () => {
+    // Arrange
     const input = [
       [
         { operation: "buy" as OperationType, unitCost: 10, quantity: 100 },
@@ -33,10 +35,10 @@ Deno.test(
     ];
     const expectedOutput = [[{ tax: 0 }, { tax: 0 }]];
 
-    const output = await Promise.all(
-      input.map((operations) => calculateCapitalGains(operations))
-    );
+    // Act
+    const output = await calculateCapitalGains(input);
 
+    // Assert
     assertEquals(output, expectedOutput);
   }
 );
@@ -45,6 +47,7 @@ Deno.test(
 Deno.test(
   `[calculate capital gains] it should incide tax of ${GAIN_TAX_PERCENTAGE}% on gains of sell operations`,
   async () => {
+    // Arrange
     const input = [
       [
         { operation: "buy" as OperationType, unitCost: 10, quantity: 10_000 },
@@ -53,10 +56,10 @@ Deno.test(
     ];
     const expectedOutput = [[{ tax: 0 }, { tax: 10_000 }]];
 
-    const output = await Promise.all(
-      input.map((operations) => calculateCapitalGains(operations))
-    );
+    // Act
+    const output = await calculateCapitalGains(input);
 
+    // Assert
     assertEquals(output, expectedOutput);
   }
 );
@@ -65,6 +68,7 @@ Deno.test(
 Deno.test(
   `[calculate capital gains] it should incide no tax for sell operations with loss`,
   async () => {
+    // Arrange
     const input = [
       [
         { operation: "buy" as OperationType, unitCost: 10, quantity: 10_000 },
@@ -74,10 +78,10 @@ Deno.test(
     ];
     const expectedOutput = [[{ tax: 0 }, { tax: 10_000 }, { tax: 0 }]];
 
-    const output = await Promise.all(
-      input.map((operations) => calculateCapitalGains(operations))
-    );
+    // Act
+    const output = await calculateCapitalGains(input);
 
+    // Assert
     assertEquals(output, expectedOutput);
   }
 );
@@ -86,6 +90,7 @@ Deno.test(
 Deno.test(
   `[calculate capital gains] it should calculate operation lines independently`,
   async () => {
+    // Arrange
     const input = [
       [
         { operation: "buy" as OperationType, unitCost: 10, quantity: 100 },
@@ -103,10 +108,10 @@ Deno.test(
       [{ tax: 0 }, { tax: 10_000 }, { tax: 0 }],
     ];
 
-    const output = await Promise.all(
-      input.map((operations) => calculateCapitalGains(operations))
-    );
+    // Act
+    const output = await calculateCapitalGains(input);
 
+    // Assert
     assertEquals(output, expectedOutput);
   }
 );
@@ -115,6 +120,7 @@ Deno.test(
 Deno.test(
   `[calculate capital gains] it should deduce loss from gains and incide tax of ${GAIN_TAX_PERCENTAGE}% from ramainder gains`,
   async () => {
+    // Arrange
     const input = [
       [
         { operation: "buy" as OperationType, unitCost: 10, quantity: 10_000 },
@@ -124,10 +130,10 @@ Deno.test(
     ];
     const expectedOutput = [[{ tax: 0 }, { tax: 0 }, { tax: 1_000 }]];
 
-    const output = await Promise.all(
-      input.map((operations) => calculateCapitalGains(operations))
-    );
+    // Act
+    const output = await calculateCapitalGains(input);
 
+    // Assert
     assertEquals(output, expectedOutput);
   }
 );
@@ -136,6 +142,7 @@ Deno.test(
 Deno.test(
   `[calculate capital gains] it should incide no tax for operations in which there are no losses or gains`,
   async () => {
+    // Arrange
     const input = [
       [
         { operation: "buy" as OperationType, unitCost: 10, quantity: 10_000 },
@@ -149,10 +156,10 @@ Deno.test(
     ];
     const expectedOutput = [[{ tax: 0 }, { tax: 0 }, { tax: 0 }]];
 
-    const output = await Promise.all(
-      input.map((operations) => calculateCapitalGains(operations))
-    );
+    // Act
+    const output = await calculateCapitalGains(input);
 
+    // Assert
     assertEquals(output, expectedOutput);
   }
 );
@@ -161,6 +168,7 @@ Deno.test(
 Deno.test(
   `[calculate capital gains] it should calculate weighted mean price based on multiple buy operations`,
   async () => {
+    // Arrange
     const input = [
       [
         { operation: "buy" as OperationType, unitCost: 10, quantity: 10_000 },
@@ -181,10 +189,10 @@ Deno.test(
       [{ tax: 0 }, { tax: 0 }, { tax: 0 }, { tax: 10_000 }],
     ];
 
-    const output = await Promise.all(
-      input.map((operations) => calculateCapitalGains(operations))
-    );
+    // Act
+    const output = await calculateCapitalGains(input);
 
+    // Assert
     assertEquals(output, expectedOutput);
   }
 );
@@ -193,6 +201,7 @@ Deno.test(
 Deno.test(
   `[calculate capital gains] it should deduce losses from gains of subsequent operations`,
   async () => {
+    // Arrange
     const input = [
       [
         { operation: "buy" as OperationType, unitCost: 10, quantity: 10_000 },
@@ -218,10 +227,10 @@ Deno.test(
       [{ tax: 0 }, { tax: 0 }, { tax: 0 }, { tax: 0 }, { tax: 3_000 }],
     ];
 
-    const output = await Promise.all(
-      input.map((operations) => calculateCapitalGains(operations))
-    );
+    // Act
+    const output = await calculateCapitalGains(input);
 
+    // Assert
     assertEquals(output, expectedOutput);
   }
 );
@@ -230,6 +239,7 @@ Deno.test(
 Deno.test(
   `[calculate capital gains] it should change the weighted mean price after all shares are sold out and new ones are bought`,
   async () => {
+    // Arrange
     const input = [
       [
         { operation: "buy" as OperationType, unitCost: 10, quantity: 10_000 },
@@ -285,10 +295,10 @@ Deno.test(
       ],
     ];
 
-    const output = await Promise.all(
-      input.map((operations) => calculateCapitalGains(operations))
-    );
+    // Act
+    const output = await calculateCapitalGains(input);
 
+    // Assert
     assertEquals(output, expectedOutput);
   }
 );
@@ -297,6 +307,7 @@ Deno.test(
 Deno.test(
   `[calculate capital gains] it should incide tax on gains after the weighted mean price changes`,
   async () => {
+    // Arrange
     const input = [
       [
         { operation: "buy" as OperationType, unitCost: 10, quantity: 10_000 },
@@ -317,10 +328,10 @@ Deno.test(
       [{ tax: 0 }, { tax: 80_000 }, { tax: 0 }, { tax: 60_000 }],
     ];
 
-    const output = await Promise.all(
-      input.map((operations) => calculateCapitalGains(operations))
-    );
+    // Act
+    const output = await calculateCapitalGains(input);
 
+    // Assert
     assertEquals(output, expectedOutput);
   }
 );
