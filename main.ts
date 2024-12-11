@@ -1,3 +1,7 @@
+import {
+  CUT_FOR_TAX_INCIDENCE,
+  PROFIT_TAX_PERCENTAGE_DECIMALS,
+} from "./constants.ts";
 import type { Operation, OperationType, Tax } from "./types.ts";
 
 /**
@@ -10,21 +14,28 @@ import type { Operation, OperationType, Tax } from "./types.ts";
  * nova-média-ponderada = 10.0099
  */
 
-export function calculateWeightedMeanPrice(
-  balance: { shareCount: number; weightedMeanPrice: number },
+function roundToTwoDecimals(value: number) {
+  return Math.round(value * 100) / 100;
+}
+
+function calculateWeightedMeanPrice(
+  currentState: { shareCount: number; weightedMeanPrice: number },
   operation: Operation
 ): number {
-  return (
-    (balance.shareCount * balance.weightedMeanPrice +
+  const result =
+    (currentState.shareCount * currentState.weightedMeanPrice +
       operation.quantity * operation.unitCost) /
-    (balance.shareCount + operation.quantity)
-  );
+    (currentState.shareCount + operation.quantity);
+
+  return result;
+  // return roundToTwoDecimals(result);
 }
 
 export async function calculateCapitalGains(
   operations: Operation[]
 ): Promise<Tax[]> {
   let shareCount = 0;
+  let balance = 0;
   let weightedMeanPrice = 0;
 
   const taxes: Tax[] = [];
@@ -40,13 +51,77 @@ export async function calculateCapitalGains(
       );
 
       shareCount += operation.quantity;
+      // Consider the remaining balance is used to buy new shares,
+      // thus the current balance resets
+      balance = 0;
 
+      console.log(`[${JSON.stringify(operation)}]`, {
+        weightedMeanPrice,
+        shareCount,
+        balance,
+      });
+
+      taxes.push({ tax: 0 });
       continue;
     }
 
     if (operation.operation === "sell") {
       shareCount -= operation.quantity;
 
+      if (operation.unitCost < weightedMeanPrice) {
+        // Loss
+
+        // Store loss value to deduce in future profits
+        const loss =
+          weightedMeanPrice * operation.quantity -
+          operation.unitCost * operation.quantity;
+
+        balance -= loss;
+
+        console.log(`[${JSON.stringify(operation)}]`, {
+          weightedMeanPrice,
+          shareCount,
+          balance,
+        });
+
+        taxes.push({ tax: 0 });
+        continue;
+      }
+
+      // Profit
+
+      const profit =
+        operation.unitCost * operation.quantity -
+        weightedMeanPrice * operation.quantity;
+      const actualProfit = balance + profit;
+
+      balance += profit;
+
+      const isTotalOperationValueLessThanCutForTaxIncidence =
+        operation.unitCost * operation.quantity < CUT_FOR_TAX_INCIDENCE;
+      const isLossDeducedProfitZero = actualProfit < 0;
+
+      if (
+        isTotalOperationValueLessThanCutForTaxIncidence ||
+        isLossDeducedProfitZero
+      ) {
+        taxes.push({ tax: 0 });
+        continue;
+      }
+
+      // Round decimals only at the end
+      const tax = roundToTwoDecimals(
+        actualProfit * PROFIT_TAX_PERCENTAGE_DECIMALS
+      );
+
+      console.log(`[${JSON.stringify(operation)}]`, {
+        weightedMeanPrice,
+        shareCount,
+        balance,
+        tax,
+      });
+
+      taxes.push({ tax });
       continue;
     }
 
