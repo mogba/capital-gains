@@ -136,29 +136,32 @@ function calcOps(
   previousBalance?: Balance
 ): Tax[] {
   const [head, ...tail] = operations;
-  const taxes = [...(previousTaxes || [])];
+  const taxes = previousTaxes || [];
   const balance = {
-    tax: { tax: -1 },
     ...(previousBalance || {
       weightedMeanPrice: 0,
       shareCount: 0,
       totalLoss: 0,
     }),
+    tax: { tax: -1 },
   };
-  const calcResult =
+  const newBalance =
     operationMap[head.operation]?.({
       operation: head,
       ...balance,
     }) || balance;
-  Object.assign(balance, calcResult);
 
-  taxes.push(balance.tax);
+  taxes.push(newBalance.tax);
 
   if (tail.length === 0) {
     return taxes;
   }
 
-  return calcOps(tail, taxes, balance);
+  return calcOps(tail, taxes, {
+    weightedMeanPrice: newBalance.weightedMeanPrice,
+    shareCount: newBalance.shareCount,
+    totalLoss: newBalance.totalLoss,
+  });
 }
 
 function iterateOpsLines(
