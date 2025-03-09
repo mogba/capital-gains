@@ -1,11 +1,9 @@
 import { assertEquals } from "@std/assert";
 
-import {
-  calculateCapitalGains,
-  CUT_FOR_TAX_INCIDENCE,
-  GAIN_TAX_PERCENTAGE,
-  type OperationType,
-} from "./index.ts";
+import { calculateCapitalGains } from "../calculation-recursive.ts";
+
+import type { OperationType } from "./calculator.types.ts";
+import { CUT_FOR_TAX_INCIDENCE, GAIN_TAX_PERCENTAGE } from "./constants.ts";
 
 // Case #1
 Deno.test(

@@ -1,26 +1,23 @@
+import { roundToTwoDecimals } from "../utils/number/formatter.ts";
+
+import type {
+  Operation,
+  CalcArgsObj,
+  CalcResultObj,
+  OpCalcFn,
+  OperationType,
+  Tax,
+  Balance,
+} from "./calculator.types.ts";
+import { CUT_FOR_TAX_INCIDENCE } from "./constants.ts";
 import {
-  CUT_FOR_TAX_INCIDENCE,
-  GAIN_TAX_PERCENTAGE_DECIMAL,
-  type Balance,
-  type CalcArgsObj,
-  type CalcResultObj,
-  type OpCalcFn,
-  type Operation,
-  type OperationType,
-  type Tax,
-} from "./index.ts";
-
-function calculateWeightedMeanPrice(
-  currentState: { shareCount: number; weightedMeanPrice: number },
-  operation: Operation
-): number {
-  const result =
-    (currentState.shareCount * currentState.weightedMeanPrice +
-      operation.quantity * operation.unitCost) /
-    (currentState.shareCount + operation.quantity);
-
-  return result;
-}
+  calculateGain,
+  calculateLoss,
+  calculateLossAfterGain,
+  calculateOperationCost,
+  calculateTax,
+  calculateWeightedMeanPrice,
+} from "./formulas.ts";
 
 function calculateSellWithLoss({
   operation,
@@ -28,37 +25,23 @@ function calculateSellWithLoss({
   weightedMeanPrice,
   totalLoss,
 }: CalcArgsObj): CalcResultObj {
-  const loss =
-    weightedMeanPrice * operation.quantity -
-    operation.unitCost * operation.quantity;
-
   return {
     tax: { tax: 0 },
     weightedMeanPrice,
     shareCount,
-    totalLoss: totalLoss! - loss,
+    totalLoss: calculateLoss(operation, weightedMeanPrice, totalLoss!),
   };
-}
-
-function calculateGain(operation: Operation, weightedMeanPrice: number) {
-  return (
-    operation.unitCost * operation.quantity -
-    weightedMeanPrice * operation.quantity
-  );
 }
 
 function incidesTax(operation: Operation, lossAfterGain: number) {
   const isTotalOperationValueLessThanCutForTaxIncidence =
-    operation.unitCost * operation.quantity < CUT_FOR_TAX_INCIDENCE;
+    calculateOperationCost(operation.unitCost, operation.quantity) <
+    CUT_FOR_TAX_INCIDENCE;
   const isLossDeducedGainZero = lossAfterGain < 0;
 
   return !(
     isTotalOperationValueLessThanCutForTaxIncidence || isLossDeducedGainZero
   );
-}
-
-function roundToTwoDecimals(value: number) {
-  return Math.round(value * 100) / 100;
 }
 
 function calculateSellWithGain({
@@ -67,11 +50,14 @@ function calculateSellWithGain({
   weightedMeanPrice,
   totalLoss,
 }: CalcArgsObj) {
-  const lossAfterGain =
-    totalLoss! - calculateGain(operation, weightedMeanPrice);
+  const lossAfterGain = calculateLossAfterGain(
+    totalLoss!,
+    calculateGain(operation, weightedMeanPrice)
+  );
+
   const tax = incidesTax(operation, lossAfterGain)
     ? { tax: 0 }
-    : { tax: roundToTwoDecimals(lossAfterGain * GAIN_TAX_PERCENTAGE_DECIMAL) };
+    : { tax: roundToTwoDecimals(calculateTax(lossAfterGain)) };
 
   return {
     tax,
@@ -81,17 +67,15 @@ function calculateSellWithGain({
   };
 }
 
-const calculateBuy: OpCalcFn = ({
+const processBuyOperation: OpCalcFn = ({
   operation,
   shareCount,
   weightedMeanPrice,
 }) => {
   const newWeightedMeanPrice = calculateWeightedMeanPrice(
-    {
-      shareCount,
-      weightedMeanPrice,
-    },
-    operation
+    operation,
+    shareCount,
+    weightedMeanPrice
   );
 
   return {
@@ -102,7 +86,7 @@ const calculateBuy: OpCalcFn = ({
   };
 };
 
-const calculateSell: OpCalcFn = ({
+const processSellOperation: OpCalcFn = ({
   operation,
   shareCount,
   weightedMeanPrice,
@@ -125,12 +109,12 @@ const calculateSell: OpCalcFn = ({
   });
 };
 
-const operationMap: Record<OperationType, OpCalcFn> = {
-  buy: calculateBuy,
-  sell: calculateSell,
+const operationProcessorMap: Record<OperationType, OpCalcFn> = {
+  buy: processBuyOperation,
+  sell: processSellOperation,
 };
 
-function calcOps(
+function iterateOperations(
   operations: Operation[],
   previousTaxes?: Tax[],
   previousBalance?: Balance
@@ -146,7 +130,7 @@ function calcOps(
     tax: { tax: -1 },
   };
   const newBalance =
-    operationMap[head.operation]?.({
+    operationProcessorMap[head.operation]?.({
       operation: head,
       ...balance,
     }) || balance;
@@ -157,29 +141,29 @@ function calcOps(
     return taxes;
   }
 
-  return calcOps(tail, taxes, {
+  return iterateOperations(tail, taxes, {
     weightedMeanPrice: newBalance.weightedMeanPrice,
     shareCount: newBalance.shareCount,
     totalLoss: newBalance.totalLoss,
   });
 }
 
-function iterateOpsLines(
+function iterateOperationLines(
   operationsLines: Operation[][],
   previousTaxesLines?: Tax[][]
 ): Tax[][] {
   const [head, ...tail] = operationsLines;
 
-  const lineTaxes = calcOps(head);
+  const lineTaxes = iterateOperations(head);
   const taxesLines = [...(previousTaxesLines || []), lineTaxes];
 
   if (tail.length === 0) {
     return taxesLines;
   }
 
-  return iterateOpsLines(tail, taxesLines);
+  return iterateOperationLines(tail, taxesLines);
 }
 
 export function calculateCapitalGains(operationsLines: Operation[][]) {
-  return iterateOpsLines(operationsLines);
+  return iterateOperationLines(operationsLines);
 }

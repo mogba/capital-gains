@@ -1,4 +1,7 @@
-import { isProduction, kebabToCamel, STDIN_BUFFER_LENGTH } from "./index.ts";
+import { isProduction } from "../core/environment/constants.ts";
+import { kebabToCamel } from "../utils/string/word-case-parser.ts";
+
+import { STDIN_BUFFER_LENGTH } from "./constants.ts";
 
 function mapNonEmptyTrimmedLines(input: string) {
   return input
@@ -12,6 +15,12 @@ function checkEmptyArgs(input: string[]) {
     console.error("No input provided in arguments.");
     Deno.exit(0);
   }
+}
+
+function readInputFromArgs(): string[] {
+  checkEmptyArgs(Deno.args);
+
+  return mapNonEmptyTrimmedLines(Deno.args[0]);
 }
 
 async function readInputFromStdin(): Promise<string[]> {
@@ -35,12 +44,6 @@ async function readInputFromStdin(): Promise<string[]> {
   checkEmptyArgs(lines);
 
   return lines;
-}
-
-function readInputFromArgs(): string[] {
-  checkEmptyArgs(Deno.args);
-
-  return mapNonEmptyTrimmedLines(Deno.args[0]);
 }
 
 export async function readJsonInput<T>(): Promise<T[]> {

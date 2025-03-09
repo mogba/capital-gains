@@ -1,0 +1,1 @@
+export const STDIN_BUFFER_LENGTH = 10240;
